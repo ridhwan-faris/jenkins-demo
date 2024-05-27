@@ -1,29 +1,9 @@
 pipeline {
-	agent none
+	agent any
 	stages {
-		stage('Maven Install') {
-			agent {
-				any {
-					image 'maven:3.5.0'
-				}
-			}
+		stage('Build') {
 			steps {
-				sh 'mvn clean install'
-			}
-		}
-		stage('Docker Build') {
-			agent any
-			steps {
-				sh 'docker build -t ridhwanfaris/jenkins-demo:latest .'
-			}
-		}
-		stage('Docker Push') {
-			agent any
-			steps {
-				withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-					sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-					sh 'docker push ridhwanfaris/jenkins-demo:latest'
-				}
+				sh 'mvn -B -DskipTests clean package'
 			}
 		}
 	}
